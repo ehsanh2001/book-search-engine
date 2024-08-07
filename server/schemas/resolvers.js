@@ -51,10 +51,8 @@ const resolvers = {
         console.log(err);
       }
     },
-    login: async (parent, { username, email, password }) => {
-      const user = await User.findOne({
-        $or: [{ username: username }, { email: email }],
-      });
+    login: async (parent, { email, password }) => {
+      const user = await User.findOne({ email: email });
       if (!user) {
         throw AuthenticationError;
       }
@@ -65,7 +63,7 @@ const resolvers = {
         throw AuthenticationError;
       }
       const token = signToken(user);
-      return { token, user };
+      return { token: token, user: user };
     },
     deleteBook: async (parent, args, context) => {
       if (!context.user) {
