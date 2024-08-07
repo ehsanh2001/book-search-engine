@@ -5,6 +5,9 @@ const { login } = require("../controllers/user-controller");
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
+      if (!context.user) {
+        throw AuthenticationError;
+      }
       const foundUser = await User.findOne({
         $or: [
           { _id: context.user ? context.user._id : args.id },
@@ -28,7 +31,7 @@ const resolvers = {
         return { message: "Something is wrong!" };
       }
       const token = signToken(user);
-      return { token, user };
+      return { token: token, user: user };
     },
 
     saveBook: async (parent, args, context) => {
@@ -68,7 +71,8 @@ const resolvers = {
       if (!context.user) {
         throw AuthenticationError;
       }
-
+      console.log(args);
+      console.log("context ", context.user._id);
       const updatedUser = await User.findOneAndUpdate(
         { _id: context.user._id },
         { $pull: { savedBooks: { bookId: args.bookId } } },
